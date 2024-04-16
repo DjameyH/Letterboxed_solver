@@ -23,7 +23,7 @@ def flexible_input(question):
     return -1  # Return -1 for invalid input
 
 
-def export_list_to_text_file(lst, filename):
+def export_list_to_text_file(lst, filename):  # Kinda only use is just useless can be done with lists
     try:
         with open(filename, 'w') as f:
             for item in lst:
@@ -31,6 +31,10 @@ def export_list_to_text_file(lst, filename):
         print("List exported successfully to", filename)
     except Exception as e:
         print("Error:", e)
+
+
+  # The following function removes all words that have the letters available in the puzzle but that cannot be used due
+  # to the puzzles' constraints
 
 def remove_words_with_consecutive_letters(words, letters):
     new_words = []
@@ -45,7 +49,7 @@ def remove_words_with_consecutive_letters(words, letters):
 
 
 class Puzzle:
-    def __init__(self):
+    def __init__(self):  # Honestly have to figur out what here is needed
         self.remaining_alphabet = None
         self.letters = []
         self.top_side = []
@@ -56,7 +60,7 @@ class Puzzle:
         self.starting_letter = None
         self.move = 0
 
-    def generate_letters(self):
+    def generate_letters(self):  # Creates a puzzle with random letters
         self.letters = []
         alphabet = [string.ascii_lowercase[i] for i in range(26)]
         sides = 4
@@ -71,14 +75,16 @@ class Puzzle:
         self.bottom_side = [self.letters[6], self.letters[7], self.letters[8]]
         self.left_side = [self.letters[9], self.letters[10], self.letters[11]]
         self.remaining_alphabet = alphabet
+        # TODO: make this actually work so it's solveable
+        # Maybe use certain things like 1. more vowels 2. vowels on opposing sides 3. very complex letter stuff that idk
 
-    def read_puzzle(self, text):
+    def read_puzzle(self, text):  # Creates a puzzle out of a text file
         self.top_side = []
         self.bottom_side = []
         self.right_side = []
         self.left_side = []
-        alphabet = [string.ascii_lowercase[i] for i in range(26)]
-        with open(text, 'r') as file:
+        alphabet = [string.ascii_lowercase[i] for i in range(26)]  # Alphabet
+        with open(text, 'r') as file:  # Honestly gotta figure out how this works again
             reader = csv.reader(file)
             for i, row in enumerate(reader):
                 if i == 0:
@@ -104,7 +110,7 @@ class Puzzle:
                 self.word_list.append(line.strip())  # Remove trailing newline characters
         return self.word_list
 
-    def print_puzzle(self):
+    def print_puzzle(self):  # Prints the puzzle all pretty like :)
         print(f"   {self.top_side[0]}  {self.top_side[1]}  {self.top_side[2]}")
         print(" +-o--o--o-+")
         print(f"{self.left_side[0]}|         |{self.right_side[0]}")
@@ -113,12 +119,14 @@ class Puzzle:
         print(" +-o--o--o-+")
         print(f"   {self.bottom_side[0]}  {self.bottom_side[1]}  {self.bottom_side[2]}")
 
-    def make_move(self):
+    def make_move(self):  # Will make the puzzle playable in terminal
         valid_letters = []
         inp = str(input("Enter a valid word: "))
         if inp[0] == self.starting_letter or self.starting_letter is None:
             self.starting_letter = self.letters[-1]
 
+    # Creates a dictionary with all possible words in alphabetical order with letters as the keys and the keys as a list
+    # containing words that start with the letter that key is
     def make_word_list(self, word_list):
         alphabet = [string.ascii_lowercase[i] for i in range(26)]
         alphabet_dict = {letter: [] for letter in alphabet}
@@ -126,11 +134,16 @@ class Puzzle:
             alphabet_dict[word[0]].append(word)
         return alphabet_dict
 
+    # Makes optimal 2 move solutions out of the possible words.
+    # Does this by checking every word with a possible second word and seeing if the puzzle letters are a subset of
+    # that combination of letters. You can do this since all these words are already usable for sure
     def make_word_pairs(self, word_list, alpha_list, letters_set):
         for word_1 in word_list:
             for word_2 in alpha_list[word_1[-1:]]:
                 if (set(letters_set)).issubset(set(word_1 + word_2)):
                     print(word_1, word_2)
+
+    # Uses a bunch of methods to solve the puzzle :)
     def solve(self):
         self.create_word_list('valid_words.txt')
         print(len(self.word_list))
